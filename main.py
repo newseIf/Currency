@@ -19,112 +19,10 @@ from kivymd.uix.textfield import MDTextField
 from pandas.plotting import table
 from matplotlib.backends.backend_pdf import PdfPages
 from reportlab.pdfgen import canvas
+import os, sys
+from kivy.resources import resource_add_path, resource_find
+import path
 
-
-
-KV = '''
-MDFloatLayout:
-
-    MDRaisedButton:
-        text: "Начало диапазона"
-        pos_hint: {'x':0,'y':.9}
-        on_release: app.show_date_picker()
-    MDRaisedButton:
-        text: "Конец диапазона"
-        pos_hint: {'x':.0,'y':0.8}
-        on_release: app.show_date_picker1()
-    MDRaisedButton:
-        id: button
-        text: "Валюта"
-        pos_hint: {'x':.0,'y':0.7}
-        on_release: app.menu_open()
-    MDRaisedButton:
-        text: "Критерий хи квадрат"
-        on_release: app.get_currency()
-        pos_hint: {'x':.0,'y':0.6}
-    MDRaisedButton:
-        text: "Построение графика"
-        on_release: app.get_chart()
-        pos_hint: {'x':.25,'y':0.6}
-    MDRaisedButton:
-        text: "Критерий Стьюдента"
-        on_release: app.get_student()
-        pos_hint: {'x':0,'y':0.2}
-    MDRaisedButton:
-        text: "Выбранные данные"
-        on_release: app.get_table_currency()
-        pos_hint: {'x':0.81,'y':0.9}
-    MDRaisedButton:
-        text: "Сохранить график"
-        on_release: app.get_pdf()
-        pos_hint: {'x':0.805,'y':0.8}
-    MDRaisedButton:
-        text: "Сохранить гипотезы"
-        on_release: app.get_pdf1()
-        pos_hint: {'x':0.785,'y':0.7}
-    FloatLayout:
-        MDBoxLayout:
-            size_hint: None, None
-            size: '1920px', '5px'
-            pos_hint: {'x':.0,'y':0.67}
-            md_bg_color: app.theme_cls.primary_color
-
-            canvas.before:
-                Color:
-                    rgba: app.theme_cls.accent_color
-                Line:
-                    points: self.x, self.center_y, self.x + self.width, self.center_y
-                    width: 1.5
-        MDBoxLayout:
-            size_hint: None, None
-            size: '1920px', '5px'
-            pos_hint: {'x':.0,'y':0.5}
-            md_bg_color: app.theme_cls.primary_color
-
-            canvas.before:
-                Color:
-                    rgba: app.theme_cls.accent_color
-                Line:
-                    points: self.x, self.center_y, self.x + self.width, self.center_y
-                    width: 1.5
-
-    MDLabel:
-        id: date_label1
-        pos_hint: {'x':.2,'y':0.43}
-        text: "01/01/2004"
-    MDLabel:
-        id: date_label2
-        pos_hint: {'x':.2,'y':0.33}
-        text: "30/01/2004"
-    MDLabel:
-        id: curr_label
-        pos_hint: {'x':.2,'y':0.23}
-        text: "USD"
-    MDLabel:
-        id: text_label
-        pos_hint: {'x':.0,'y':0.05}
-        text: ""
-    MDLabel:
-        id: text_student
-        size_hint_y: None
-        pos_hint: {'x':.0,'y':0.05}
-        text: ""
-    MDTextField:
-        id: text_H
-        font_size: '20px'
-        size_hint_x: None
-        width: 300
-        pos_hint: {"x":.0, "y":.4}
-        hint_text: "Средний значение"
-    MDTextField:
-        id: text_q
-        font_size: '20px'
-        pos_hint: {"x": .0, "y": .3}
-        hint_text: "Уровень значимости"
-        size_hint_x: None
-        width: 300
-
-    '''
 class CurrencyApp(MDApp):
 
     def build(self):
@@ -141,7 +39,7 @@ class CurrencyApp(MDApp):
                         size_hint=(0.5, 0.5)
                         )
         q = MDTextField(text='Уровень значимости', pos_hint={'x': .0, 'y': 0.2}, size_hint=(0.5, 0.5))
-        return Builder.load_string(KV)
+        return Builder.load_file('currency.kv')
 
     def get_pdf(self):
             url = f'https://cbr.ru/scripts/XML_dynamic.asp?date_req1={formatted_date1}&date_req2={formatted_date2}&VAL_NM_RQ={value_curr}'
@@ -653,4 +551,11 @@ class CurrencyApp(MDApp):
         plt.show()
 
 if __name__ == "__main__":
-    CurrencyApp().run()
+    try:
+        if hasattr(sys, '_MEIPASS'):
+            resource_add_path(os.path.join(sys._MEIPASS))
+        app = CurrencyApp()
+        app.run()
+    except Exception as e:
+        print(e)
+        input("Press enter.")
